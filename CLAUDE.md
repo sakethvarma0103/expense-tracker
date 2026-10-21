@@ -39,6 +39,11 @@ Expense tracker web app (MVP), built as a real product — not a demo. Favour co
 - The Vite dev server proxies `/api` to `http://localhost:5000` so cookies work on one origin.
 - Axios uses `withCredentials: true`.
 
+### PWA
+- `vite-plugin-pwa` generates the manifest and service worker (production builds only).
+- The service worker caches the app shell only. Never cache `/api` responses: they are per-user and must be fresh.
+- Updates use a "Reload" prompt (`PwaUpdatePrompt`), never a silent reload that could lose a half-filled form.
+
 ### Secrets
 - Never commit secrets. Use `.env` files (git-ignored).
 - Keep `.env.example` updated whenever an env var is added, renamed, or removed.
@@ -72,6 +77,12 @@ All error responses use one shape:
 { "error": { "message": "Human-readable message", "details": {} } }
 ```
 `details` is optional (e.g. Zod validation issues).
+
+### Testing
+- Run `npm test` from the root before committing (server + client suites).
+- Server tests (`server/tests`, Vitest + supertest) run the Express app in-process against an in-memory MongoDB (`mongodb-memory-server`). They never touch Atlas.
+- Every new or changed endpoint gets tests, including: validation errors, `userId` scoping (another user gets 404), and money/date edge cases (paise totals, IST month and day boundaries).
+- Client pure helpers (`src/utils`) get unit tests next to them (`*.test.ts`).
 
 ### Workflow
 - Keep changes small and focused — one task at a time.
