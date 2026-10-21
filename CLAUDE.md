@@ -63,6 +63,7 @@ pages/         route-level views
 context/       React context providers (e.g. auth)
 services/      Axios API clients
 types/         shared TypeScript types
+utils/         pure helpers (e.g. money.ts: formatINR, parseRupeesToPaise)
 ```
 
 ### API errors
