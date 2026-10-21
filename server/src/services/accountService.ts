@@ -6,6 +6,8 @@ import {
   type AccountType,
   type PublicAccount,
 } from '../models/Account';
+import { Transaction } from '../models/Transaction';
+import { getTransactionTotals } from './balanceService';
 
 export interface CreateAccountInput {
   name: string;
@@ -17,18 +19,22 @@ export type UpdateAccountInput = Partial<CreateAccountInput & { archived: boolea
 
 const duplicateName = () => new HttpError(409, 'You already have an account with this name');
 
-// TODO: add the sum of the account's transactions once transactions exist
-function toPublicAccount(account: AccountDocument): PublicAccount {
+function toPublicAccount(account: AccountDocument, transactionTotal: number): PublicAccount {
   return {
     id: account.id as string,
     name: account.name,
     type: account.type,
     openingBalance: account.openingBalance,
-    balance: account.openingBalance,
+    balance: account.openingBalance + transactionTotal,
     archived: account.archived,
     createdAt: account.createdAt,
     updatedAt: account.updatedAt,
   };
+}
+
+async function withBalance(userId: string, account: AccountDocument): Promise<PublicAccount> {
+  const totals = await getTransactionTotals(userId, [account.id as string]);
+  return toPublicAccount(account, totals.get(account.id as string) ?? 0);
 }
 
 async function findOwnedAccount(userId: string, accountId: string): Promise<AccountDocument> {
@@ -43,14 +49,15 @@ async function findOwnedAccount(userId: string, accountId: string): Promise<Acco
 }
 
 export async function listAccounts(userId: string): Promise<PublicAccount[]> {
-  const accounts = await Account.find({ userId })
-    .collation({ locale: 'en', strength: 2 })
-    .sort({ archived: 1, name: 1 });
-  return accounts.map(toPublicAccount);
+  const [accounts, totals] = await Promise.all([
+    Account.find({ userId }).collation({ locale: 'en', strength: 2 }).sort({ archived: 1, name: 1 }),
+    getTransactionTotals(userId),
+  ]);
+  return accounts.map((a) => toPublicAccount(a, totals.get(a.id as string) ?? 0));
 }
 
 export async function getAccount(userId: string, accountId: string): Promise<PublicAccount> {
-  return toPublicAccount(await findOwnedAccount(userId, accountId));
+  return withBalance(userId, await findOwnedAccount(userId, accountId));
 }
 
 export async function createAccount(
@@ -59,7 +66,7 @@ export async function createAccount(
 ): Promise<PublicAccount> {
   try {
     const account = await Account.create({ ...input, userId });
-    return toPublicAccount(account);
+    return toPublicAccount(account, 0);
   } catch (err) {
     if (isDuplicateKeyError(err)) throw duplicateName();
     throw err;
@@ -79,11 +86,17 @@ export async function updateAccount(
     if (isDuplicateKeyError(err)) throw duplicateName();
     throw err;
   }
-  return toPublicAccount(account);
+  return withBalance(userId, account);
 }
 
-// TODO: once transactions exist, refuse to delete accounts that have them (archive instead)
 export async function deleteAccount(userId: string, accountId: string): Promise<void> {
   const account = await findOwnedAccount(userId, accountId);
+  const inUse = await Transaction.exists({
+    userId,
+    $or: [{ accountId: account._id }, { toAccountId: account._id }],
+  });
+  if (inUse) {
+    throw new HttpError(409, 'This account has transactions. Archive it instead to keep its history.');
+  }
   await account.deleteOne();
 }

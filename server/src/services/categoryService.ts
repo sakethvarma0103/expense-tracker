@@ -7,6 +7,7 @@ import {
   type CategoryType,
   type PublicCategory,
 } from '../models/Category';
+import { Transaction } from '../models/Transaction';
 import { User } from '../models/User';
 import { DEFAULT_CATEGORIES } from './defaultCategories';
 
@@ -107,8 +108,10 @@ export async function updateCategory(
   return toPublicCategory(category);
 }
 
-// TODO: once transactions exist, refuse to delete categories that are in use (archive instead)
 export async function deleteCategory(userId: string, categoryId: string): Promise<void> {
   const category = await findOwnedCategory(userId, categoryId);
+  if (await Transaction.exists({ userId, categoryId: category._id })) {
+    throw new HttpError(409, 'This category is used by transactions. Archive it instead.');
+  }
   await category.deleteOne();
 }
