@@ -11,7 +11,15 @@ A responsive, PWA-first expense tracker for Indian users. Track accounts, catego
 
 ## Getting started
 
-Setup instructions will be added once `/client` and `/server` are scaffolded. Each will need its own `.env`, copied from its `.env.example`.
+Requires Node.js 20+ and a MongoDB Atlas cluster.
+
+```bash
+npm run install:all                     # install root, server and client dependencies
+cp server/.env.example server/.env      # then fill in MONGODB_URI and JWT_SECRET
+npm run dev                             # API on :5000, web app on http://localhost:5173
+```
+
+Run one side only with `npm run dev:server` or `npm run dev:client`.
 
 ## Roadmap
 

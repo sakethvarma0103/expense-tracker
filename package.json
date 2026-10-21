@@ -1,0 +1,18 @@
+{
+  "name": "expense-tracker",
+  "private": true,
+  "description": "Expense tracker monorepo: /client (React) and /server (Express)",
+  "scripts": {
+    "dev": "concurrently --raw --kill-others-on-fail \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix server && npm run build --prefix client",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}

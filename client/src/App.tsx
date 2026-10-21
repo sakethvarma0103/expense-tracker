@@ -1,12 +1,30 @@
-import { Container, Typography } from '@mui/material'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AppLayout } from './components/AppLayout'
+import { ProtectedRoute, PublicOnlyRoute } from './components/RouteGuards'
+import { AuthProvider } from './context/AuthProvider'
+import { DashboardPage } from './pages/DashboardPage'
+import { LoginPage } from './pages/LoginPage'
+import { NotFoundPage } from './pages/NotFoundPage'
+import { RegisterPage } from './pages/RegisterPage'
 
 function App() {
   return (
-    <Container sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1">
-        Expense Tracker
-      </Typography>
-    </Container>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route index element={<DashboardPage />} />
+            </Route>
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
