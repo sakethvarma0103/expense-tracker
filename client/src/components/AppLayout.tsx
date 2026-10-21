@@ -18,10 +18,12 @@ import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet'
 import Category from '@mui/icons-material/Category'
 import Dashboard from '@mui/icons-material/Dashboard'
 import Logout from '@mui/icons-material/Logout'
+import ReceiptLong from '@mui/icons-material/ReceiptLong'
 import { useAuth } from '../context/useAuth'
 
 const NAV_ITEMS = [
   { label: 'Dashboard', to: '/', icon: <Dashboard /> },
+  { label: 'Transactions', to: '/transactions', icon: <ReceiptLong /> },
   { label: 'Accounts', to: '/accounts', icon: <AccountBalanceWallet /> },
   { label: 'Categories', to: '/categories', icon: <Category /> },
 ]

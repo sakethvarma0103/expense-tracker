@@ -10,6 +10,7 @@ import {
   getTransaction,
   listTransactions,
   replaceTransaction,
+  summarizeMonth,
   toInput,
 } from '../services/transactionService';
 
@@ -69,7 +70,18 @@ const listQuerySchema = z.object({
   cursor: z.string().optional(),
 });
 
+const summaryQuerySchema = z.object({
+  month: z.string().regex(MONTH_PATTERN, 'Month must be YYYY-MM'),
+  accountId: objectId('account').optional(),
+  categoryId: objectId('category').optional(),
+});
+
 type IdParams = { id: string };
+
+export async function summary(req: Request, res: Response): Promise<void> {
+  const filters = summaryQuerySchema.parse(req.query);
+  res.json({ summary: await summarizeMonth(getUserId(req), filters) });
+}
 
 export async function list(req: Request, res: Response): Promise<void> {
   const filters = listQuerySchema.parse(req.query);

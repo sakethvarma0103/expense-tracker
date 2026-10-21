@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { TransactionsPage } from './pages/TransactionsPage'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index element={<DashboardPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/accounts" element={<AccountsPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
             </Route>

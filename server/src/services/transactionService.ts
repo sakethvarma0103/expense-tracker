@@ -161,6 +161,37 @@ export async function listTransactions(
   };
 }
 
+export interface MonthSummary {
+  month: string;
+  /** Paise. Transfers are excluded: they move money, they don't earn or spend it. */
+  income: number;
+  expense: number;
+  net: number;
+}
+
+export async function summarizeMonth(
+  userId: string,
+  filters: { month: string; accountId?: string; categoryId?: string },
+): Promise<MonthSummary> {
+  const { start, end } = istMonthRange(filters.month);
+  // aggregate() doesn't cast types, so ids must be ObjectIds
+  const match: Record<string, unknown> = {
+    userId: new Types.ObjectId(userId),
+    type: { $in: ['expense', 'income'] },
+    date: { $gte: start, $lt: end },
+  };
+  if (filters.accountId) match.accountId = new Types.ObjectId(filters.accountId);
+  if (filters.categoryId) match.categoryId = new Types.ObjectId(filters.categoryId);
+
+  const rows = await Transaction.aggregate<{ _id: TransactionType; total: number }>([
+    { $match: match },
+    { $group: { _id: '$type', total: { $sum: '$amount' } } },
+  ]);
+  const income = rows.find((r) => r._id === 'income')?.total ?? 0;
+  const expense = rows.find((r) => r._id === 'expense')?.total ?? 0;
+  return { month: filters.month, income, expense, net: income - expense };
+}
+
 export async function getTransaction(userId: string, id: string): Promise<PublicTransaction> {
   return toPublicTransaction(await findOwnedTransaction(userId, id));
 }

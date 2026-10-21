@@ -4,6 +4,7 @@ import {
   getOne,
   list,
   remove,
+  summary,
   transactionSchema,
   transactionUpdateSchema,
   update,
@@ -16,6 +17,7 @@ export const transactionRouter = Router();
 transactionRouter.use(requireAuth);
 
 transactionRouter.get('/', list);
+transactionRouter.get('/summary', summary); // before '/:id' so "summary" isn't read as an id
 transactionRouter.post('/', validateBody(transactionSchema), create);
 transactionRouter.get('/:id', getOne);
 // Only checks the shape here; the controller merges and fully validates
