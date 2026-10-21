@@ -43,6 +43,19 @@ export function formatMonth(month: string): string {
   return new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(d)
 }
 
+/** "2026-10" -> "Oct" */
+export function formatMonthShort(month: string): string {
+  const d = new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)) - 1, 1))
+  return new Intl.DateTimeFormat('en-IN', { month: 'short', timeZone: 'UTC' }).format(d)
+}
+
+/** "2026-10-16" -> "16 Oct" */
+export function formatDayShort(day: string): string {
+  return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
+    new Date(`${day}T00:00:00Z`),
+  )
+}
+
 /** "2026-10-21" -> "Today" / "Yesterday" / "Tue, 14 Oct" (adds the year if not this year) */
 export function formatDayHeading(day: string): string {
   const today = istParts(new Date()).date

@@ -5,6 +5,7 @@ import { env } from './config/env';
 import { connectDB } from './config/db';
 import { errorHandler, notFound } from './middleware/error';
 import { accountRouter } from './routes/accountRoutes';
+import { analyticsRouter } from './routes/analyticsRoutes';
 import { authRouter } from './routes/authRoutes';
 import { categoryRouter } from './routes/categoryRoutes';
 import { transactionRouter } from './routes/transactionRoutes';
@@ -23,6 +24,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/accounts', accountRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/transactions', transactionRouter);
+app.use('/api/analytics', analyticsRouter);
 
 app.use('/api', notFound);
 app.use(errorHandler);

@@ -7,6 +7,18 @@ export function formatINR(paise: number): string {
   return inrFormatter.format(paise / 100)
 }
 
+/** Short Indian notation for axes and tight spaces: 950 -> "₹950", 1.5 lakh -> "₹1.5L", 2 crore -> "₹2Cr" */
+export function formatINRCompact(paise: number): string {
+  const rupees = Math.abs(paise) / 100
+  const sign = paise < 0 ? '-' : ''
+  const short = (value: number, suffix: string) =>
+    `${sign}₹${Number(value.toFixed(value < 10 ? 1 : 0)).toString()}${suffix}`
+  if (rupees >= 1_00_00_000) return short(rupees / 1_00_00_000, 'Cr')
+  if (rupees >= 1_00_000) return short(rupees / 1_00_000, 'L')
+  if (rupees >= 1_000) return short(rupees / 1_000, 'K')
+  return `${sign}₹${Math.round(rupees)}`
+}
+
 const AMOUNT_PATTERN = /^(-)?(\d+)(?:\.(\d{0,2}))?$/
 
 /**

@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
-  Avatar,
   Box,
   Button,
   Collapse,
   Fab,
   IconButton,
   List,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
   ListSubheader,
   MenuItem,
   Paper,
@@ -26,9 +22,8 @@ import Add from '@mui/icons-material/Add'
 import FilterList from '@mui/icons-material/FilterList'
 import ChevronLeft from '@mui/icons-material/ChevronLeft'
 import ChevronRight from '@mui/icons-material/ChevronRight'
-import SwapHoriz from '@mui/icons-material/SwapHoriz'
-import { CategoryAvatar } from '../components/CategoryIcon'
 import { TransactionFormDialog } from '../components/TransactionFormDialog'
+import { TransactionListItem } from '../components/TransactionListItem'
 import { fetchAccounts } from '../services/accountService'
 import { parseApiError } from '../services/api'
 import { fetchCategories } from '../services/categoryService'
@@ -42,7 +37,7 @@ import {
   type Transaction,
   type TransactionType,
 } from '../types/transaction'
-import { currentIstMonth, formatDayHeading, formatMonth, formatTime, istParts, shiftMonth } from '../utils/date'
+import { currentIstMonth, formatDayHeading, formatMonth, istParts, shiftMonth } from '../utils/date'
 import { formatINR } from '../utils/money'
 
 type FormState = { open: false } | { open: true; transaction?: Transaction }
@@ -170,65 +165,16 @@ export function TransactionsPage() {
   const hasFilters = activeFilterCount > 0
   const categoryFilterOptions = categories.filter((c) => typeFilter === '' || typeFilter === c.type)
 
-  const renderAmount = (tx: Transaction) => {
-    // With an account filter, show transfers as money in/out of that account
-    let sign = ''
-    let color = 'text.primary'
-    if (tx.type === 'income') {
-      sign = '+'
-      color = 'success.main'
-    } else if (tx.type === 'expense') {
-      sign = '−'
-    } else if (accountFilter) {
-      sign = tx.toAccountId === accountFilter ? '+' : '−'
-      color = 'text.secondary'
-    } else {
-      color = 'text.secondary'
-    }
-    return (
-      <Typography sx={{ fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', color, ml: 2 }}>
-        {sign}
-        {formatINR(tx.amount)}
-      </Typography>
-    )
-  }
-
-  const renderRow = (tx: Transaction) => {
-    const account = accountsById.get(tx.accountId)
-    const category = tx.categoryId ? categoriesById.get(tx.categoryId) : undefined
-    const toAccount = tx.toAccountId ? accountsById.get(tx.toAccountId) : undefined
-
-    const title = tx.type === 'transfer' ? 'Transfer' : (category?.name ?? 'Uncategorised')
-    const accountText =
-      tx.type === 'transfer'
-        ? `${account?.name ?? '?'} → ${toAccount?.name ?? '?'}`
-        : (account?.name ?? '')
-    const secondary = [formatTime(tx.date), accountText, tx.note].filter(Boolean).join(' · ')
-
-    return (
-      <ListItemButton key={tx.id} divider onClick={() => setForm({ open: true, transaction: tx })}>
-        <ListItemAvatar>
-          {category ? (
-            <CategoryAvatar icon={category.icon} color={category.color} />
-          ) : (
-            <Avatar sx={{ bgcolor: 'action.selected', color: 'text.secondary' }}>
-              <SwapHoriz />
-            </Avatar>
-          )}
-        </ListItemAvatar>
-        <ListItemText
-          primary={title}
-          secondary={secondary}
-          slotProps={{
-            primary: { noWrap: true, sx: { fontWeight: 500 } },
-            secondary: { noWrap: true },
-          }}
-          sx={{ minWidth: 0 }}
-        />
-        {renderAmount(tx)}
-      </ListItemButton>
-    )
-  }
+  const renderRow = (tx: Transaction) => (
+    <TransactionListItem
+      key={tx.id}
+      transaction={tx}
+      accountsById={accountsById}
+      categoriesById={categoriesById}
+      perspectiveAccountId={accountFilter || undefined}
+      onClick={() => setForm({ open: true, transaction: tx })}
+    />
+  )
 
   const summaryItems = summary
     ? [
