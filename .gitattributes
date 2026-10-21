@@ -1,0 +1,18 @@
+# Store and check out text files with LF endings on every OS
+# (overrides core.autocrlf, so Windows checkouts match the repo)
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files: never touch
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
