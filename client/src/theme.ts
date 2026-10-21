@@ -25,6 +25,12 @@ export const theme = createTheme({
       defaultProps: { disableElevation: true },
       styleOverrides: { root: { textTransform: 'none', fontWeight: 600 } },
     },
+    MuiTab: {
+      styleOverrides: { root: { textTransform: 'none', fontWeight: 600 } },
+    },
+    MuiToggleButton: {
+      styleOverrides: { root: { textTransform: 'none', fontWeight: 600 } },
+    },
     MuiTextField: {
       defaultProps: { fullWidth: true },
     },

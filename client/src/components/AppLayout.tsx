@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material'
 import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet'
+import Category from '@mui/icons-material/Category'
 import Dashboard from '@mui/icons-material/Dashboard'
 import Logout from '@mui/icons-material/Logout'
 import { useAuth } from '../context/useAuth'
@@ -22,6 +23,7 @@ import { useAuth } from '../context/useAuth'
 const NAV_ITEMS = [
   { label: 'Dashboard', to: '/', icon: <Dashboard /> },
   { label: 'Accounts', to: '/accounts', icon: <AccountBalanceWallet /> },
+  { label: 'Categories', to: '/categories', icon: <Category /> },
 ]
 
 function activeNavPath(pathname: string): string {

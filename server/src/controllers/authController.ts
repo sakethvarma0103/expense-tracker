@@ -12,6 +12,7 @@ import {
   registerUser,
   signToken,
 } from '../services/authService';
+import { ensureDefaultCategories } from '../services/categoryService';
 
 const email = z.string().trim().toLowerCase().pipe(z.email('Enter a valid email'));
 
@@ -37,6 +38,7 @@ function setAuthCookie(res: Response, userId: string): void {
 export async function register(req: Request, res: Response): Promise<void> {
   const input = req.body as z.infer<typeof registerSchema>;
   const user = await registerUser(input);
+  await ensureDefaultCategories(user.id as string);
   setAuthCookie(res, user.id as string);
   res.status(201).json({ user: toPublicUser(user) });
 }

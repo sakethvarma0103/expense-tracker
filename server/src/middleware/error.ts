@@ -21,7 +21,7 @@ function body(message: string, details?: unknown): ErrorBody {
   return details === undefined ? { error: { message } } : { error: { message, details } };
 }
 
-function isMongoDuplicateKey(err: unknown): boolean {
+export function isDuplicateKeyError(err: unknown): boolean {
   return typeof err === 'object' && err !== null && 'code' in err && err.code === 11000;
 }
 
@@ -42,7 +42,7 @@ export const errorHandler: ErrorRequestHandler = (err: unknown, _req, res, _next
     res.status(400).json(body('Validation failed', z.flattenError(err).fieldErrors));
     return;
   }
-  if (isMongoDuplicateKey(err)) {
+  if (isDuplicateKeyError(err)) {
     res.status(409).json(body('A record with these details already exists'));
     return;
   }

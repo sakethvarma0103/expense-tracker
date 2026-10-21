@@ -1,5 +1,5 @@
 import { isValidObjectId } from 'mongoose';
-import { HttpError } from '../middleware/error';
+import { HttpError, isDuplicateKeyError } from '../middleware/error';
 import {
   Account,
   type AccountDocument,
@@ -14,10 +14,6 @@ export interface CreateAccountInput {
 }
 
 export type UpdateAccountInput = Partial<CreateAccountInput & { archived: boolean }>;
-
-function isDuplicateKey(err: unknown): boolean {
-  return typeof err === 'object' && err !== null && 'code' in err && err.code === 11000;
-}
 
 const duplicateName = () => new HttpError(409, 'You already have an account with this name');
 
@@ -65,7 +61,7 @@ export async function createAccount(
     const account = await Account.create({ ...input, userId });
     return toPublicAccount(account);
   } catch (err) {
-    if (isDuplicateKey(err)) throw duplicateName();
+    if (isDuplicateKeyError(err)) throw duplicateName();
     throw err;
   }
 }
@@ -80,7 +76,7 @@ export async function updateAccount(
   try {
     await account.save();
   } catch (err) {
-    if (isDuplicateKey(err)) throw duplicateName();
+    if (isDuplicateKeyError(err)) throw duplicateName();
     throw err;
   }
   return toPublicAccount(account);

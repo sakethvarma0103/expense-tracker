@@ -4,6 +4,8 @@ export interface IUser {
   name: string;
   email: string;
   passwordHash: string;
+  /** Set once the default categories have been created for this user */
+  categoriesSeededAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,6 +15,7 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true, trim: true, maxlength: 50 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true, select: false },
+    categoriesSeededAt: { type: Date },
   },
   { timestamps: true },
 );
